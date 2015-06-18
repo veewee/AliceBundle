@@ -3,6 +3,7 @@
 namespace Hautelook\AliceBundle\Alice;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Persistence\Mapping\MappingException;
 use Doctrine\Common\Persistence\ObjectManager;
 use Nelmio\Alice\ProcessorInterface;
 use Psr\Log\LoggerInterface;
@@ -186,6 +187,12 @@ class Loader
      */
     private function hasIdentity($reference)
     {
-        return count($this->objectManager->getClassMetadata(get_class($reference))->getIdentifier()) > 0;
+        try {
+            $className = get_class($reference);
+            $meta = $this->objectManager->getClassMetadata($className);
+            return (count($meta->getIdentifier())  > 0);
+        } catch (MappingException $e) {
+            return false;
+        }
     }
 }
